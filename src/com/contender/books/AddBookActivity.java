@@ -284,7 +284,7 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 		value.put(MainView.BooksOpenHelper.COLUMN_NAME_HASREMINDER, reminder.isChecked());
 
 		mDB.insert(MainView.BooksOpenHelper.BOOKS_TABLE_NAME, null, value);
-
+		
 		finish();
 	}
 

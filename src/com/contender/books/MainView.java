@@ -13,7 +13,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.provider.BaseColumns;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +20,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -126,8 +126,9 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 	}
 	
 	public void refreshOverview() {
-				
-		adapter = new SimpleCursorAdapter(this, R.layout.overview_item, mCursor, 
+		
+						
+		adapter = new SpecialCursorAdapter(this, R.layout.overview_item, mCursor, 
 				new String[] { BooksOpenHelper.COLUMN_NAME_BOOK, BooksOpenHelper.COLUMN_NAME_CONTACT, BooksOpenHelper.COLUMN_NAME_DUEDATE }, 
 				new int[] { R.id.itemBookText, R.id.itemContactText, R.id.itemDuedateText }, 0) {
 			@Override
@@ -136,7 +137,8 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 			}
 		};
 		listView.setAdapter(adapter);
-//		adapter.notifyDataSetChanged();
+		
+		
 	}
 
 	public void showNoticeDialog() {
@@ -182,13 +184,11 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 		IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
 		if (scanResult != null && scanResult.getContents() != null) {
 			// handle scan result
-			// FIXME: HANDLE RESULT CODE 
 			Intent newIntent = new Intent(this, AddBookActivity.class);
 			newIntent.putExtra(Intent.EXTRA_TEXT, scanResult.getContents());
 			startActivity(newIntent);			
 		}
-		// else continue with any other code you need in the method
-		
+			
 	}
 	
 	@Override
@@ -201,7 +201,6 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 
 		mDatabaseHelper = new BooksOpenHelper(this);
 
-
 	}
 
 	@Override
@@ -213,9 +212,6 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 		// Manage this cursor ?
 		
 		refreshOverview();
-		
-
-
 	}
 
 	
