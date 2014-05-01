@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -35,6 +34,8 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 
 	public class BooksOpenHelper extends SQLiteOpenHelper {
 
+		// TODO: Possibly rewrite the DB code to use contentresolvers instead.
+		
 		private static final int DATABASE_VERSION = 6;
 		private static final String DATABASE_NAME = "books.db";
 		public static final String BOOKS_TABLE_NAME = "books";

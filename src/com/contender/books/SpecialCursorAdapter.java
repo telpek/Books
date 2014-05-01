@@ -6,8 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SimpleCursorAdapter;
 
+
+
 public class SpecialCursorAdapter extends SimpleCursorAdapter {
-	private int[] colors = new int[] { 0x00000000, 0xFFc0c0c0 };
+	private int[] colors = new int[] { 0x99FFFFFF, 0x99c0c0c0 };
      
     public SpecialCursorAdapter (Context context, int layout, Cursor c, String[] from, int[] to, int flags)  {
         super(context, layout, c, from, to, flags);
