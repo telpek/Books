@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Books</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_add">Add book</string>
+    <string name="title_activity_add_book">Add Book</string>
+    <string name="text_book">Book Title</string>
+    <string name="text_contact">Contact Name</string>
+    <string name="text_isbn">ISBN</string>
+    <string name="text_calendar">Set Calendar reminder</string>
+    <string name="text_duedate">Due Date</string>
+    <string name="button_done">Done!</string>
+	<string name="dialog_edit_or_delete">Edit or Delete entry?</string>
+	<string name="dialog_edit">Edit</string>
+	<string name="dialog_delete">Delete</string>
+	<string name="dialog_scan_title">Scan barcode?</string>
+	<string name="dialog_scan_or_manual">Would you like to scan your book or enter the title manually?</string>
+	<string name="dialog_scan">Scan</string>
+	<string name="dialog_manual">Manual</string>
+</resources>
