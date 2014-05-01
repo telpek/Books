@@ -8,6 +8,7 @@
     <string name="title_activity_add_book">Add Book</string>
     <string name="text_book">Book Title</string>
     <string name="text_contact">Contact Name</string>
+    <string name="text_author">Author</string>
     <string name="text_isbn">ISBN</string>
     <string name="text_calendar">Set Calendar reminder</string>
     <string name="text_duedate">Due Date</string>

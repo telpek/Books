@@ -45,6 +45,7 @@ import com.google.api.services.books.model.Volumes;
 public class AddBookActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
 
 	public static Calendar dueDate;
+	private String lIsbn, lAuthor, lContact, lTitle;
 
 
 	private class BookResolver extends AsyncTask<String, Void, Integer> {
@@ -53,7 +54,6 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 		private static final String API_KEY = "AIzaSyBo4wt19r4dcaMd6zwnNtSzWZ8FYUHJ2wI";
 
 		private JsonFactory json = JacksonFactory.getDefaultInstance();
-		private String title, author, isbn;
 		private Books book;
 
 		@Override
@@ -69,7 +69,7 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 				return null;
 			}
 
-			isbn = new String(args[0]);
+			lIsbn = new String(args[0]);
 			book = new Books.Builder(AndroidHttp.newCompatibleTransport(), json, null)
 			.setApplicationName(APPLICATION_NAME)
 			.setGoogleClientRequestInitializer(new BooksRequestInitializer(API_KEY))
@@ -77,7 +77,7 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 
 			List volumesList;
 			try {
-				volumesList = book.volumes().list("isbn:" + isbn);
+				volumesList = book.volumes().list("isbn:" + lIsbn);
 			} catch (IOException e) {
 
 				cancel(true);
@@ -103,13 +103,13 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 
 			for(Volume volume : searchResult.getItems()) {
 				Volume.VolumeInfo volumeInfo = volume.getVolumeInfo();
-				title = new String(volumeInfo.getTitle());
+				lTitle = new String(volumeInfo.getTitle());
 				java.util.List<String> authors = volumeInfo.getAuthors();
 				if (authors != null && !authors.isEmpty()) {
-					author = new String(authors.get(0));
+					lAuthor = new String(authors.get(0));
 
 				} else 
-					author = new String("Unknown");
+					lAuthor = new String("Unknown");
 				break;
 			}
 
@@ -133,9 +133,9 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 			{
 				// doInBackground() completed succesfully
 				TextView editTitle = (TextView) findViewById(R.id.editBookTitle);
-				TextView editIsbn = (TextView) findViewById(R.id.editIsbn);
-				editTitle.setText(title);
-				editIsbn.setText(isbn);
+				TextView editAuthor = (TextView) findViewById(R.id.editAuthor);
+				editTitle.setText(lTitle);
+				editAuthor.setText(lAuthor);
 			}
 		}
 	}
@@ -212,8 +212,7 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 			contacts[mCursor.getPosition()] = mCursor.getString(columnIndex);
 		}
 		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, 
-																contacts);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, contacts);
 
 		editContact.setAdapter(adapter);
 		editContact.setThreshold(2);
@@ -264,10 +263,10 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 	public void submitBook(View view) {
 		// Verify input and either submit to DB or implore user to re-enter
 
-		//Verify
+		// TODO: Verify input
 
 
-		//Submit
+		// Submit
 		SQLiteDatabase mDB = MainView.mDatabaseHelper.getWritableDatabase();
 		Calendar rightNow = Calendar.getInstance();
 
@@ -276,8 +275,8 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 		value.put(MainView.BooksOpenHelper.COLUMN_NAME_BOOK, text.getText().toString());
 		text = (EditText) findViewById(R.id.editContact);
 		value.put(MainView.BooksOpenHelper.COLUMN_NAME_CONTACT, text.getText().toString());
-		text = (EditText) findViewById(R.id.editIsbn);
-		value.put(MainView.BooksOpenHelper.COLUMN_NAME_ISBN, text.getText().toString());
+		
+		value.put(MainView.BooksOpenHelper.COLUMN_NAME_ISBN, lIsbn);
 		value.put(MainView.BooksOpenHelper.COLUMN_NAME_LOANDATE, rightNow.getTimeInMillis());
 		value.put(MainView.BooksOpenHelper.COLUMN_NAME_DUEDATE, dueDate.getTimeInMillis());
 
