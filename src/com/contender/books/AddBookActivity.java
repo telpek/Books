@@ -204,10 +204,7 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 
 		Cursor mCursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, mProjection, null, null, null);
 		AutoCompleteTextView editContact = (AutoCompleteTextView) findViewById(R.id.editContact);
-		// SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, android.R.layout.simple_dropdown_item_1line, null, 
-		//		new String[] { ContactsContract.Contacts.DISPLAY_NAME_PRIMARY },
-		//		new int[] { android.R.layout.simple_dropdown_item_1line }, 0);
-
+	
 		int columnIndex = mCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY);
 		String [] contacts = new String [mCursor.getCount()]; 
 		
@@ -221,37 +218,8 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 		editContact.setAdapter(adapter);
 		editContact.setThreshold(2);
 
-		/* adapter.setFilterQueryProvider(new FilterQueryProvider() {
-			public Cursor runQuery(CharSequence str) {
-				String[] mProjection = 
-					{
-						ContactsContract.Contacts._ID,
-						ContactsContract.Contacts.DISPLAY_NAME_PRIMARY
-					};
-				String select = ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE ? ";
-				String[]  selectArgs = { "%" + str + "%"};
-
-				return getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, mProjection, select, selectArgs, null);
-			}
-
-		});
-
-		adapter.setCursorToStringConverter(new CursorToStringConverter() {
-			public CharSequence convertToString(Cursor cur) {
-				int index = cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY);
-				return cur.getString(index);
-			}});
-		*/
-
 	}
 
-	/*	@Override
-	public void onDialogPositiveClick(DialogFragment dialog) {
-		// Scan button
-		IntentIntegrator integrator = new IntentIntegrator(this);
-		integrator.initiateScan();
-	}
-	 */
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
