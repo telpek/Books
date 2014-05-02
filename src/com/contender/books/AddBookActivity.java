@@ -59,6 +59,7 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 		@Override
 		protected void onPreExecute() {
 
+			
 		}
 
 		@Override
