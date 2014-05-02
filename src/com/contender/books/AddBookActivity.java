@@ -268,24 +268,23 @@ public class AddBookActivity extends ActionBarActivity implements DatePickerDial
 
 
 		// Submit
-		SQLiteDatabase mDB = MainView.mDatabaseHelper.getWritableDatabase();
 		Calendar rightNow = Calendar.getInstance();
 
 		ContentValues value = new ContentValues();
 		EditText text = (EditText) findViewById(R.id.editBookTitle);
-		value.put(MainView.BooksOpenHelper.COLUMN_NAME_BOOK, text.getText().toString());
+		value.put(BooksStorage.COLUMN_NAME_BOOK, text.getText().toString());
 		text = (EditText) findViewById(R.id.editContact);
-		value.put(MainView.BooksOpenHelper.COLUMN_NAME_CONTACT, text.getText().toString());
-		
-		value.put(MainView.BooksOpenHelper.COLUMN_NAME_ISBN, lIsbn);
-		value.put(MainView.BooksOpenHelper.COLUMN_NAME_LOANDATE, rightNow.getTimeInMillis());
-		value.put(MainView.BooksOpenHelper.COLUMN_NAME_DUEDATE, dueDate.getTimeInMillis());
+		value.put(BooksStorage.COLUMN_NAME_CONTACT, text.getText().toString());
+		text = (EditText) findViewById(R.id.editAuthor);
+		value.put(BooksStorage.COLUMN_NAME_AUTHOR, text.getText().toString());
+		value.put(BooksStorage.COLUMN_NAME_LOANDATE, rightNow.getTimeInMillis());
+		value.put(BooksStorage.COLUMN_NAME_DUEDATE, dueDate.getTimeInMillis());
 
 		CheckBox reminder = (CheckBox) findViewById(R.id.checkBoxCalendar);
-		value.put(MainView.BooksOpenHelper.COLUMN_NAME_HASREMINDER, reminder.isChecked());
+		value.put(BooksStorage.COLUMN_NAME_HASREMINDER, reminder.isChecked());
 
-		mDB.insert(MainView.BooksOpenHelper.BOOKS_TABLE_NAME, null, value);
-		
+		MainView.BooksProvider.insert(BooksStorage.BOOKS_TABLE_NAME, value);
+				
 		finish();
 	}
 

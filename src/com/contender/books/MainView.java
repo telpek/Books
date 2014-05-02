@@ -6,11 +6,9 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v7.app.ActionBarActivity;
@@ -25,72 +23,24 @@ import android.widget.TextView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-
-
-
 public class MainView extends ActionBarActivity implements AdapterView.OnItemClickListener,
-												 			EditOrDeleteDialogFragment.EditOrDeleteDialogListener,
-												 			ScanOrManualDialogFragment.ScanOrManualDialogListener {
+EditOrDeleteDialogFragment.EditOrDeleteDialogListener,
+ScanOrManualDialogFragment.ScanOrManualDialogListener {
 
-	public class BooksOpenHelper extends SQLiteOpenHelper {
-
-		// TODO: Possibly rewrite the DB code to use contentresolvers instead.
-		
-		private static final int DATABASE_VERSION = 6;
-		private static final String DATABASE_NAME = "books.db";
-		public static final String BOOKS_TABLE_NAME = "books";
-		public static final String COLUMN_NAME_BOOK = "books";
-		public static final String COLUMN_NAME_CONTACT = "contacts";
-		public static final String COLUMN_NAME_ISBN = "ISBN";
-		public static final String COLUMN_NAME_LOANDATE = "loandate";
-		public static final String COLUMN_NAME_DUEDATE = "duedate";
-		public static final String COLUMN_NAME_HASREMINDER = "hasreminder";
-		public static final String COLUMN_NAME_REMAININGDATE = "remainingdate";
-		private static final String BOOKS_TABLE_CREATE =
-				"CREATE TABLE " + BOOKS_TABLE_NAME + " (" +
-						BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-						COLUMN_NAME_BOOK + " TEXT NOT NULL," +
-						COLUMN_NAME_CONTACT + " TEXT NOT NULL," +
-						COLUMN_NAME_ISBN + " TEXT," + 
-						COLUMN_NAME_LOANDATE + " LONG NOT NULL," +
-						COLUMN_NAME_DUEDATE + " LONG," +
-						COLUMN_NAME_HASREMINDER + " BOOLEAN NOT NULL" + ");";
-
-		BooksOpenHelper(Context context) {
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		}
-
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			db.execSQL(BOOKS_TABLE_CREATE);
-		}
-
-
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-			// Kills the table and existing data
-			db.execSQL("DROP TABLE IF EXISTS books");
-
-			// Recreates the database with a new version
-			onCreate(db);
-		}
-	}
-	
-	public static BooksOpenHelper mDatabaseHelper;
 	private static int dialog_id = -1;
 	private ListView listView;
+	public static BooksStorage BooksProvider;
 	private Cursor mCursor;
 	BaseAdapter adapter;
-	
+
 	private String convText(TextView v, String text) {
 		if(v.getId() == R.id.itemDuedateText) {
-			
+
 			Date dueDate = new Date(Long.parseLong(text));
 			Date today = new Date(); 
 			int days = Days.daysBetween(new DateTime(today), new DateTime(dueDate)).getDays();
 			String remTime = new String();
-			
+
 			if(days == 0) {
 				remTime = "Book is due today!";
 				return remTime;
@@ -99,13 +49,13 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 				remTime = Math.abs(days) + " day" + (Math.abs(days) > 0 ? "s" : "" ) + " overdue";
 				return remTime;
 			}
-			
+
 			int x = days / 365;
 			if(x > 0) {
 				remTime = "+" + x + " year" + (x > 1 ? "s" : "" );
 				return remTime;
 			}
-			
+
 			x = days / 30;
 			if(x > 0) {
 				remTime = "+" + x + " month" + (x > 1 ? "s" : "" );
@@ -120,17 +70,19 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 				remTime = "+" + x + " day" + (x > 1 ? "s" : "" );
 				return remTime;
 			}
-			
+
 			return remTime;
 		}
 		return text;
 	}
-	
+
 	public void refreshOverview() {
-		
-						
+
+		mCursor = BooksProvider.query(BooksStorage.BOOKS_TABLE_NAME, new String[] { BooksStorage.COLUMN_NAME__ID, BooksStorage.COLUMN_NAME_BOOK,
+				BooksStorage.COLUMN_NAME_CONTACT, BooksStorage.COLUMN_NAME_DUEDATE }, null, null, null);
+
 		adapter = new SpecialCursorAdapter(this, R.layout.overview_item, mCursor, 
-				new String[] { BooksOpenHelper.COLUMN_NAME_BOOK, BooksOpenHelper.COLUMN_NAME_CONTACT, BooksOpenHelper.COLUMN_NAME_DUEDATE }, 
+				new String[] { BooksStorage.COLUMN_NAME_BOOK, BooksStorage.COLUMN_NAME_CONTACT, BooksStorage.COLUMN_NAME_DUEDATE }, 
 				new int[] { R.id.itemBookText, R.id.itemContactText, R.id.itemDuedateText }, 0) {
 			@Override
 			public void setViewText(TextView v, String text) {
@@ -138,40 +90,36 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 			}
 		};
 		listView.setAdapter(adapter);
-		
-		
+
+
 	}
 
 	public void showNoticeDialog() {
 		DialogFragment dialog = new EditOrDeleteDialogFragment();
 		dialog.show(getFragmentManager(), "EditOrDeleteDialogFragment");
 	}
-	
+
 	@Override
 	public void onDialogEditClick(DialogFragment dialog) {
 		// Edit button
 	}
-	
+
 
 	@Override
 	public void onDialogDeleteClick(DialogFragment dialog) {
 		// Delete button
-		SQLiteDatabase mDB = MainView.mDatabaseHelper.getWritableDatabase();
 		int i = dialog_id;
-		mDB.delete(BooksOpenHelper.BOOKS_TABLE_NAME, BaseColumns._ID + "=" + i, null );
-		
-		mCursor = mDB.rawQuery("SELECT _id, books, contacts, duedate FROM books", new String[] {});
-
+		BooksProvider.delete(BooksStorage.BOOKS_TABLE_NAME, BooksStorage.COLUMN_NAME__ID + "=" + i, null );
 		refreshOverview();
 	}
-	
+
 	@Override
 	public void onDialogScanClick(DialogFragment dialog) {
 		// Start scanner intent, catch result in this activity and launch addbook activity with ISBN data
 		IntentIntegrator integrator = new IntentIntegrator(this);
 		integrator.initiateScan();
 	}
-	
+
 	@Override
 	public void onDialogManualClick(DialogFragment dialog) {
 		// launch addbook activity with no data
@@ -189,9 +137,9 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 			newIntent.putExtra(Intent.EXTRA_TEXT, scanResult.getContents());
 			startActivity(newIntent);			
 		}
-			
+
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -200,22 +148,20 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 		listView = (ListView) findViewById(R.id.listView1);
 		listView.setOnItemClickListener(this);
 
-		mDatabaseHelper = new BooksOpenHelper(this);
-
+		BooksProvider = new BooksStorage(this.getApplicationContext());
+		
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 
-		SQLiteDatabase mDB = mDatabaseHelper.getReadableDatabase();
-		mCursor = mDB.rawQuery("SELECT _id, books, contacts, duedate FROM books", new String[] {});
 		// Manage this cursor ?
-		
+
 		refreshOverview();
 	}
 
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -244,15 +190,11 @@ public class MainView extends ActionBarActivity implements AdapterView.OnItemCli
 
 		// map position to _id in DB
 		dialog_id = (int) adapter.getItemId(position);
-		
+
 		DialogFragment dialog = new EditOrDeleteDialogFragment();
 		dialog.show(getFragmentManager(), "edit_or_delete");
 
-		/* Context context = getApplicationContext();
-		CharSequence text = "Received Click event on item" + position + " dialog id set to " + dialog_id;
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context,  text,  duration);
-		toast.show(); */ 
+		
 	}
 
 
